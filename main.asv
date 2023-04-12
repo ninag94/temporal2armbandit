@@ -2,14 +2,16 @@
 
 
 % choose the directory containing the files to analyse
+
 Directory = uigetdir;
 prefix = input('provide the prefix of the files to select:'); %f.e. 2_NosePoke
 AllSessionFilesList = dir(fullfile(Directory,[prefix,'*mat']));
 
-%maybe ask user for a path for storing the results f.e. plots etc.
-%(if-statement in case the user does not want to store the results)
+%maybe ask user for a path for storing the results f.e. plots etc. (if
+%statement in case the user does not want to store the results)
 
 %define mode for either analyzing session per session or all sessions
+
 mode = input('Provide the type of analysis: single session or all sessions: [s|a]');
 if mode ~= 's' && mode ~= 'a'
     mode = 's';
@@ -31,6 +33,7 @@ AllSessionFiles = cell2mat(AllSessionFiles);
 
 
 %switch statement for mode = s (session per session analysis)
+
 switch mode
     case 's'
         for i = 1:length(AllSessionFiles)
