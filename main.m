@@ -34,9 +34,11 @@ AllSessionFiles = cell2mat(AllSessionFiles);
 switch mode
     case 's'
         for i = 1:length(AllSessionFiles)
-            DateSession = AllSessionFiles(i).SessionData.Custom.General.SessionDate;
-            Animal = AllSessionFiles(i).SessionData.Custom.General.Subject;
+            File = AllSessionFiles(i);
+            DateSession = File.SessionData.Custom.General.SessionDate;
+            Animal = File.SessionData.Custom.General.Subject;
             % all functions for analyzing the data go here!
+            [A,B] = notbaitedanalysis(File); % A, B is currently only a placeholder
             %think about the output of this loop and how to store it
 
             %all functions for plotting go here as well
