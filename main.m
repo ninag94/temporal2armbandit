@@ -5,6 +5,8 @@
 Directory = uigetdir;
 prefix = input('provide the prefix of the files to select:'); %f.e. 2_NosePoke
 AllSessionFilesList = dir(fullfile(Directory,[prefix,'*mat']));
+prompt2 = "Enter the path of the directory for saving the plots:";   % f.e. '/Users/ninagrimme/Desktop/Matlab/#2_OneArmCued/plots'
+path = input(prompt2);
 
 %maybe ask user for a path for storing the results f.e. plots etc.
 %(if-statement in case the user does not want to store the results)
@@ -23,12 +25,17 @@ AllSessionFiles = cell(1, numel(AllSessionFilesList));
 % Loop through each file and load the data into the cell array
 for i = 1:numel(AllSessionFilesList)
     file_name = fullfile(Directory, AllSessionFilesList(i).name);
-    %check the size of the file?
+    %check the size of the file
+    if AllSessionFilesList(i).bytes < 100000
+        continue
+    end
+   
     AllSessionFiles{i} = load(file_name);
 end
 
 % Convert the cell array to a numeric array
-
+indxemptycells = any(~cellfun('isempty',AllSessionFiles), 1);
+AllSessionFiles = AllSessionFiles(indxemptycells);
 AllSessionFiles = cell2mat(AllSessionFiles);
 
 
@@ -43,7 +50,8 @@ switch mode
             %[A,B] = notbaitedanalysis(File); % A, B is currently only a placeholder
             [MChoiceLeftSmoothed,RunningAveragePlot]= blockanalysis(File);
 
-            
+            Plot = fullfile(path,sprintf('%s_%s_running_average.png',Animal,DateSession));
+            saveas(RunningAveragePlot,Plot);
             %think about the output of this loop and how to store it
 
             
