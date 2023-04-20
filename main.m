@@ -23,10 +23,12 @@ AllSessionFiles = cell(1, numel(AllSessionFilesList));
 % Loop through each file and load the data into the cell array
 for i = 1:numel(AllSessionFilesList)
     file_name = fullfile(Directory, AllSessionFilesList(i).name);
+    %check the size of the file?
     AllSessionFiles{i} = load(file_name);
 end
 
 % Convert the cell array to a numeric array
+
 AllSessionFiles = cell2mat(AllSessionFiles);
 
 
@@ -38,10 +40,13 @@ switch mode
             DateSession = File.SessionData.Custom.General.SessionDate;
             Animal = File.SessionData.Custom.General.Subject;
             % all functions for analyzing the data go here!
-            [A,B] = notbaitedanalysis(File); % A, B is currently only a placeholder
+            %[A,B] = notbaitedanalysis(File); % A, B is currently only a placeholder
+            [MChoiceLeftSmoothed,RunningAveragePlot]= blockanalysis(File);
+
+            
             %think about the output of this loop and how to store it
 
-            %all functions for plotting go here as well
+            
         end
   
 

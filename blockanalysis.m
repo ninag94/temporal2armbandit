@@ -9,6 +9,8 @@ function [ChoiceLeftSmoothed,p] = blockanalysis(x)
 Trialnumber = 1:x.SessionData.nTrials;
 RewardProb = x.SessionData.Custom.TrialData.RewardProb;
 ChoiceLeft = x.SessionData.Custom.TrialData.ChoiceLeft;
+Animal = x.SessionData.Custom.General.Subject;
+DateSession = x.SessionData.Custom.General.SessionDate;
 
 RewardProbLeft = RewardProb(1,:);
 
@@ -23,6 +25,7 @@ ChoiceLeftSmoothed = smooth(ChoiceLeft, 10, 'moving','omitnan'); %current binnin
 plot(Trialnumber,ChoiceLeftSmoothed,'-k','LineWidth',2);
 ylabel('Ratio of Left Choices)')
 xlabel('Trials')
+title([Animal,"-",DateSession],"FontSize",12);
 hold off
 
 
