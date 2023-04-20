@@ -65,7 +65,7 @@ switch TaskParameters.GUIMeta.RiskType.String{TaskParameters.GUI.RiskType}
         %all trials overview (counts for each observed behavior)
 
         ChoiceLeftRight = [ChoiceLeft; 1-ChoiceLeft];
-        indxNotBaited = any((Baited == 0) .* ChoiceLeftRight, 1);
+        NotBaited = any((Baited == 0) .* ChoiceLeftRight, 1);
 
         counts = zeros(1,6)';
         events = {'NoChoice', 'BrokeFix','EarlyWith','SkippedFeedback','Rewarded','NotBaited'};
@@ -87,7 +87,7 @@ switch TaskParameters.GUIMeta.RiskType.String{TaskParameters.GUI.RiskType}
             AllSessionEvents('Rewarded','counts')= {length(Rewarded(Rewarded==1))};
         end
         if ~isempty(indxNotBaited)
-            AllSessionEvents('NotBaited','counts')= {length(indxNotBaited(indxNotBaited==1))};
+            AllSessionEvents('NotBaited','counts')= {length(NotBaited(NotBaited==1))};
         end
     
     
@@ -108,6 +108,23 @@ switch TaskParameters.GUIMeta.RiskType.String{TaskParameters.GUI.RiskType}
         title('All trials');
         ylabel("counts");
 
+
+        % distribution of waiting time of notbaited trials
+        
+        if ~isempty(FeedbackWaitingTime)
+
+            NotBaitedWT = FeedbackWaitingTime(NotBaited==1); 
+
+            subplot(2,2,3)    %needs adjustment!
+
+            histogram(NotBaitedWT,'FaceColor','cyan')   %maybe define the bins?
+            xlabel('time investment in s')
+            ylabel('n')
+
+            %maybe split up the waiting times for phigh and plow?
+
+
+        end 
 
     case 'Cued'
 
