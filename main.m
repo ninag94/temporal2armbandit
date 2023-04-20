@@ -48,11 +48,17 @@ switch mode
             Animal = File.SessionData.Custom.General.Subject;
             % all functions for analyzing the data go here!
             %[A,B] = notbaitedanalysis(File); % A, B is currently only a placeholder
-            [MChoiceLeftSmoothed,RunningAveragePlot]= blockanalysis(File);
 
+            %running average plot
+            [MChoiceLeftSmoothed,RunningAveragePlot]= blockanalysis(File);
             Plot = fullfile(path,sprintf('%s_%s_running_average.png',Animal,DateSession));
             saveas(RunningAveragePlot,Plot);
-            %think about the output of this loop and how to store it
+
+            %all session events plot
+            [AllSessionEvents,AllEventsPlot] = alltrials_fixedwithholding(File);
+            Plot = fullfile(path,sprintf('%s_%s_allsessionevents.png',Animal,DateSession));
+            saveas(AllEventsPlot,Plot);
+           
 
             
         end
