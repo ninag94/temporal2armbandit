@@ -1,13 +1,13 @@
 %% 2ArmBandittask analysis function
 
 function FigHandle = Analysis(DataFile)
-global TaskParameters;
-global BpodSystem;
+global BpodSystem
 
 if nargin < 1
     DataFile = BpodSystem.Data;
 end
 
+%% Load related data to local variabels
 try
     Animal = str2double(DataFile.Info.Subject);
 catch
@@ -30,48 +30,46 @@ RewardProb = DataFile.Custom.TrialData.RewardProb;
 LightLeft = DataFile.Custom.TrialData.LightLeft;
 
 ChoiceLeftRight = [ChoiceLeft; 1-ChoiceLeft]; 
-%%%%%%%%%%%%%%%%%%%%%
-
-
-
-switch TaskParameters.GUIMeta.RiskType.String{TaskParameters.GUI.RiskType}
+%% Plot based on task design/ risk type
+switch DataFile.SettingsFile.GUIMeta.RiskType.String{DataFile.SettingsFile.GUI.RiskType}
     case 'Fix'
-
+    %%
         %not yet implemented
 
     case 'BlockRand'
-
+    %%
         %not yet implemented
 
     case 'BlockFix'
-
+    %%
         %not yet implemented
 
     case 'BlockFixHolding'
-
-        FigHandle = figure('Position',[ 360         187        1056         598],'NumberTitle','off','Name',Animal);
+    %%
+        FigHandle = figure('Position', [360  187	1056	598],...
+                           'NumberTitle', 'off',...
+                           'Name', num2str(Animal));
 
         %running choice average
 
         RewardProbLeft = RewardProb(1,:);
-
-        subplot(2,2,1)          %needs adjustment! depends on the number of plots in the end
-
-        if ~ isempty(ChoiceLeft)
+        
+        %% Block switching behaviour across trial
+        subplot(2,2,1) %needs adjustment! depends on the number of plots in the end
+        if ~isempty(ChoiceLeft)
             xdata = 1:nTrials;
-            plot(xdata,RewardProbLeft,'-k','Color',[.5,.5,.5],'LineWidth',2);
+            plot(xdata, RewardProbLeft, '-k', 'Color', [.5,.5,.5], 'LineWidth', 2);
             hold on;
 
             ChoiceLeftSmoothed = smooth(ChoiceLeft, 10, 'moving','omitnan'); %current bin width: 10 trials
-            plot(xdata,ChoiceLeftSmoothed,'-k','LineWidth',2);
+            plot(xdata, ChoiceLeftSmoothed, '-k', 'LineWidth', 2);
             ylim([0 1]);
             xlim([0 nTrials]);
-            ylabel('Ratio of Left Choices)')
+            ylabel('Ratio of Left Choices (%)')
             xlabel('Trials')
-
         end
 
-        %all trials overview (counts for each observed behavior)
+        %% all trials overview (counts for each observed behavior)
 
         ChoiceLeftRight = [ChoiceLeft; 1-ChoiceLeft];
         indxNotBaited = any((Baited == 0) .* ChoiceLeftRight, 1);
@@ -81,22 +79,22 @@ switch TaskParameters.GUIMeta.RiskType.String{TaskParameters.GUI.RiskType}
         AllSessionEvents = table(counts,'RowNames',events);
 
         if ~isempty(NoChoice)
-            AllSessionEvents('NoChoice','counts')= {length(NoChoice(NoChoice==1))};
+            AllSessionEvents('NoChoice','counts') = {length(NoChoice(NoChoice==1))};
         end
         if ~isempty(BrokeFix)
-            AllSessionEvents('BrokeFix','counts')= {length(BrokeFix(BrokeFix==1))};
+            AllSessionEvents('BrokeFix','counts') = {length(BrokeFix(BrokeFix==1))};
         end
         if ~isempty(EarlyWith)
-            AllSessionEvents('EarlyWith','counts')= {length(EarlyWith(EarlyWith==1))};
+            AllSessionEvents('EarlyWith','counts') = {length(EarlyWith(EarlyWith==1))};
         end
         if ~isempty(SkippedFeedback)
-            AllSessionEvents('SkippedFeedback','counts')= {length(SkippedFeedback(SkippedFeedback==1))}; %-length(indxNotBaited(indxNotBaited==1))};
+            AllSessionEvents('SkippedFeedback','counts') = {length(SkippedFeedback(SkippedFeedback==1))}; %-length(indxNotBaited(indxNotBaited==1))};
         end                                                                                              %is skipped feedback now seperate from not-baited?
         if ~isempty(Rewarded)  
-            AllSessionEvents('Rewarded','counts')= {length(Rewarded(Rewarded==1))};
+            AllSessionEvents('Rewarded','counts') = {length(Rewarded(Rewarded==1))};
         end
         if ~isempty(indxNotBaited)
-            AllSessionEvents('NotBaited','counts')= {length(indxNotBaited(indxNotBaited==1))};
+            AllSessionEvents('NotBaited','counts') = {length(indxNotBaited(indxNotBaited==1))};
         end
     
     
@@ -116,7 +114,6 @@ switch TaskParameters.GUIMeta.RiskType.String{TaskParameters.GUI.RiskType}
         %legend(xlabels)
         title('All trials');
         ylabel("counts");
-
 
     case 'Cued'
 
