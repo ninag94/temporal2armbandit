@@ -25,7 +25,9 @@ EarlyWith = DataFile.Custom.TrialData.EarlyWithdrawal;
 SkippedFeedback = DataFile.Custom.TrialData.SkippedFeedback;
 Rewarded = DataFile.Custom.TrialData.Rewarded;
 
-FeedbackWaitingTime = DataFile.Custom.TrialData.FeedbackWaitingTime;
+%FeedbackWaitingTime = DataFile.Custom.TrialData.FeedbackWaitingTime;
+FeedbackWaitingTime = rand(684,1)*10'; %delete this
+FeedbackWaitingTime = FeedbackWaitingTime';  %delete this
 RewardProb = DataFile.Custom.TrialData.RewardProb;
 LightLeft = DataFile.Custom.TrialData.LightLeft;
 
@@ -93,12 +95,10 @@ switch DataFile.SettingsFile.GUIMeta.RiskType.String{DataFile.SettingsFile.GUI.R
         if ~isempty(Rewarded)  
             AllSessionEvents('Rewarded','counts') = {length(Rewarded(Rewarded==1))};
         end
-        if ~isempty(indxNotBaited)
-<<<<<<< HEAD
+        if ~isempty(NotBaited)
+
             AllSessionEvents('NotBaited','counts')= {length(NotBaited(NotBaited==1))};
-=======
-            AllSessionEvents('NotBaited','counts') = {length(indxNotBaited(indxNotBaited==1))};
->>>>>>> main
+
         end
     
     
@@ -119,27 +119,47 @@ switch DataFile.SettingsFile.GUIMeta.RiskType.String{DataFile.SettingsFile.GUI.R
         title('All trials');
         ylabel("counts");
 
-<<<<<<< HEAD
+
 
         % distribution of waiting time of notbaited trials
         
-        if ~isempty(FeedbackWaitingTime)
+        if ~isempty(FeedbackWaitingTime) || all(isnan(FeedbackWaitingTime))
+            
+            RewardProbChosen = RewardProb .* ChoiceLeftRight;
+            RewardProbChosen = RewardProbChosen(1,:) + RewardProbChosen(2,:);
+            WaitingTimeBlocks = [FeedbackWaitingTime;RewardProbChosen];
+            NotBaitedWT = WaitingTimeBlocks(:,NotBaited==1);
+            PHigh = max(RewardProbChosen);
+            PLow = min(RewardProbChosen);
+            WTHigh = NotBaitedWT(:,NotBaitedWT(2,:) == PHigh);
+            WTLow = NotBaitedWT(:,NotBaitedWT(2,:) == PLow);
+            nHigh = length(WTHigh);
+            nLow = length(WTLow);
+            meanHigh = [mean(WTHigh(1));PHigh];
+            meanLow = [mean(WTLow(1));PLow];
 
-            NotBaitedWT = FeedbackWaitingTime(NotBaited==1); 
+            subplot(2,2,3);    %needs adjustment!
 
-            subplot(2,2,3)    %needs adjustment!
+            scatter(WTLow(2,:),WTLow(1,:),'cyan');
+            hold on
+            scatter(WTHigh(2,:),WTHigh(1,:),'blue');
+            plot(meanHigh(2,:),meanHigh(1,:),'x','MarkerSize',10,'MarkerEdgeColor','black','LineWidth',2);
+            plot(meanLow(2,:),meanHigh(2,:),'x','MarkerSize',10,'MarkerEdgeColor','black','LineWidth',2);
+            xlim([0 1]);
+            ticks = [PLow,PHigh];
+            xticks(ticks);
+            xticklabels({'PLow','PHigh'});
+            ylabel('time investment (s)');
+            text1 = sprintf('n = %d',nLow);
+            text2 = sprintf('n = %d',nHigh);
+            text(PLow,max(FeedbackWaitingTime),text1);
+            text(PHigh,max(FeedbackWaitingTime),text2);
+            
 
-            histogram(NotBaitedWT,'FaceColor','cyan')   %maybe define the bins?
-            xlabel('time investment in s')
-            ylabel('n')
-
-            %maybe split up the waiting times for phigh and plow?
 
 
         end 
 
-=======
->>>>>>> main
     case 'Cued'
 
         FigHandle = figure('Position',[ 360         187        1056         598],'NumberTitle','off','Name',Animal);
@@ -176,7 +196,7 @@ switch DataFile.SettingsFile.GUIMeta.RiskType.String{DataFile.SettingsFile.GUI.R
             title("Not Baited trials")
             xlabel("reward probability in %");
             ylabel("time investment in s ");
-            errorbar(x,y,errbar,'Linestyle','none','Color','k');
+            errorbar(xdata,ydata,errbar,'Linestyle','none','Color','k');
             xdataticks = WTRPSummary.RewardProb';
             xticks(xdataticks)           
             xticklabels(string(xdataticks));        %test this?
