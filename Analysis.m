@@ -1,26 +1,35 @@
 %% 2ArmBandittask analysis function
 
-function FigHandle = Analysis()
+function FigHandle = Analysis(DataFile)
 global TaskParameters;
 global BpodSystem;
 
-[~,Animal ] = fileparts(fileparts(fileparts(fileparts(BpodSystem.Path.CurrentDataFile)))); %?
- nTrials = BpodSystem.Data.nTrials;
- ChoiceLeft = BpodSystem.Data.Custom.TrialData.ChoiceLeft(1:nTrials-1);
- Baited = BpodSystem.Data.Custom.TrialData.Baited(1:nTrials-1);
- IncorrectChoice = BpodSystem.Data.Custom.TrialData.IncorrectChoice(1:nTrials-1);
- NoChoice = BpodSystem.Data.Custom.TrialData.NoDecision(1:nTrials-1);
- NoTrialStart = BpodSystem.Data.Custom.TrialData.NoTrialStart(1:nTrials-1);
- BrokeFix = BpodSystem.Data.Custom.TrialData.BrokeFixation(1:nTrials-1);
- EarlyWith = BpodSystem.Data.Custom.TrialData.EarlyWithdrawal(1:nTrials-1);
- SkippedFeedback = BpodSystem.Data.Custom.TrialData.SkippedFeedback(1:nTrials-1);
- Rewarded = BpodSystem.Data.Custom.TrialData.Rewarded(1:nTrials-1);
+if nargin < 1
+    DataFile = BpodSystem.Data;
+end
 
- FeedbackWaitingTime = BpodSystem.Data.Custom.TrialData.FeedbackWaitingTime(1:nTrials-1);
- RewardProb = BpodSystem.Data.Custom.TrialData.RewardProb(1:nTrials-1);
- LightLeft = BpodSystem.Data.Custom.TrialData.LightLeft(1:nTrials-1);
+try
+    Animal = str2double(DataFile.Info.Subject);
+catch
+    Animal = -1;
+end
 
- ChoiceLeftRight = [ChoiceLeft; 1-ChoiceLeft]; 
+nTrials = DataFile.nTrials;
+ChoiceLeft = DataFile.Custom.TrialData.ChoiceLeft;
+Baited = DataFile.Custom.TrialData.Baited;
+IncorrectChoice = DataFile.Custom.TrialData.IncorrectChoice;
+NoChoice = DataFile.Custom.TrialData.NoDecision;
+NoTrialStart = DataFile.Custom.TrialData.NoTrialStart;
+BrokeFix = DataFile.Custom.TrialData.BrokeFixation;
+EarlyWith = DataFile.Custom.TrialData.EarlyWithdrawal;
+SkippedFeedback = DataFile.Custom.TrialData.SkippedFeedback;
+Rewarded = DataFile.Custom.TrialData.Rewarded;
+
+FeedbackWaitingTime = DataFile.Custom.TrialData.FeedbackWaitingTime;
+RewardProb = DataFile.Custom.TrialData.RewardProb;
+LightLeft = DataFile.Custom.TrialData.LightLeft;
+
+ChoiceLeftRight = [ChoiceLeft; 1-ChoiceLeft]; 
 %%%%%%%%%%%%%%%%%%%%%
 
 
