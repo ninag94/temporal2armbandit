@@ -1,68 +1,75 @@
 %% 2ArmBandittask analysis function
 
-function FigHandle = Analysis()
-global TaskParameters;
-global BpodSystem;
+function FigHandle = Analysis(DataFile)
+global BpodSystem
 
-[~,Animal ] = fileparts(fileparts(fileparts(fileparts(BpodSystem.Path.CurrentDataFile)))); %?
- nTrials = BpodSystem.Data.nTrials;
- ChoiceLeft = BpodSystem.Data.Custom.TrialData.ChoiceLeft(1:nTrials-1);
- Baited = BpodSystem.Data.Custom.TrialData.Baited(1:nTrials-1);
- IncorrectChoice = BpodSystem.Data.Custom.TrialData.IncorrectChoice(1:nTrials-1);
- NoChoice = BpodSystem.Data.Custom.TrialData.NoDecision(1:nTrials-1);
- NoTrialStart = BpodSystem.Data.Custom.TrialData.NoTrialStart(1:nTrials-1);
- BrokeFix = BpodSystem.Data.Custom.TrialData.BrokeFixation(1:nTrials-1);
- EarlyWith = BpodSystem.Data.Custom.TrialData.EarlyWithdrawal(1:nTrials-1);
- SkippedFeedback = BpodSystem.Data.Custom.TrialData.SkippedFeedback(1:nTrials-1);
- Rewarded = BpodSystem.Data.Custom.TrialData.Rewarded(1:nTrials-1);
+if nargin < 1
+    DataFile = BpodSystem.Data;
+end
 
- FeedbackWaitingTime = BpodSystem.Data.Custom.TrialData.FeedbackWaitingTime(1:nTrials-1);
- RewardProb = BpodSystem.Data.Custom.TrialData.RewardProb(1:nTrials-1);
- LightLeft = BpodSystem.Data.Custom.TrialData.LightLeft(1:nTrials-1);
+%% Load related data to local variabels
+try
+    Animal = str2double(DataFile.Info.Subject);
+catch
+    Animal = -1;
+end
 
- ChoiceLeftRight = [ChoiceLeft; 1-ChoiceLeft]; 
-%%%%%%%%%%%%%%%%%%%%%
+nTrials = DataFile.nTrials;
+ChoiceLeft = DataFile.Custom.TrialData.ChoiceLeft;
+Baited = DataFile.Custom.TrialData.Baited;
+IncorrectChoice = DataFile.Custom.TrialData.IncorrectChoice;
+NoChoice = DataFile.Custom.TrialData.NoDecision;
+NoTrialStart = DataFile.Custom.TrialData.NoTrialStart;
+BrokeFix = DataFile.Custom.TrialData.BrokeFixation;
+EarlyWith = DataFile.Custom.TrialData.EarlyWithdrawal;
+SkippedFeedback = DataFile.Custom.TrialData.SkippedFeedback;
+Rewarded = DataFile.Custom.TrialData.Rewarded;
 
+FeedbackWaitingTime = DataFile.Custom.TrialData.FeedbackWaitingTime;
+RewardProb = DataFile.Custom.TrialData.RewardProb;
+LightLeft = DataFile.Custom.TrialData.LightLeft;
 
-
-switch TaskParameters.GUIMeta.RiskType.String{TaskParameters.GUI.RiskType}
+ChoiceLeftRight = [ChoiceLeft; 1-ChoiceLeft]; 
+%% Plot based on task design/ risk type
+switch DataFile.SettingsFile.GUIMeta.RiskType.String{DataFile.SettingsFile.GUI.RiskType}
     case 'Fix'
-
+    %%
         %not yet implemented
 
     case 'BlockRand'
-
+    %%
         %not yet implemented
 
     case 'BlockFix'
-
+    %%
         %not yet implemented
 
     case 'BlockFixHolding'
-
-        FigHandle = figure('Position',[ 360         187        1056         598],'NumberTitle','off','Name',Animal);
+    %%
+        FigHandle = figure('Position', [360  187	1056	598],...
+                           'NumberTitle', 'off',...
+                           'Name', num2str(Animal));
 
         %running choice average
 
         RewardProbLeft = RewardProb(1,:);
-
-        subplot(2,2,1)          %needs adjustment! depends on the number of plots in the end
-
-        if ~ isempty(ChoiceLeft)
+        
+        %% Block switching behaviour across trial
+        subplot(2,2,1) %needs adjustment! depends on the number of plots in the end
+        if ~isempty(ChoiceLeft)
             xdata = 1:nTrials;
-            plot(xdata,RewardProbLeft,'-k','Color',[.5,.5,.5],'LineWidth',2);
+            plot(xdata, RewardProbLeft, '-k', 'Color', [.5,.5,.5], 'LineWidth', 2);
             hold on;
 
             ChoiceLeftSmoothed = smooth(ChoiceLeft, 10, 'moving','omitnan'); %current bin width: 10 trials
-            plot(xdata,ChoiceLeftSmoothed,'-k','LineWidth',2);
+            plot(xdata, ChoiceLeftSmoothed, '-k', 'LineWidth', 2);
             ylim([0 1]);
             xlim([0 nTrials]);
-            ylabel('Ratio of Left Choices)')
+            ylabel('Ratio of Left Choices (%)')
             xlabel('Trials')
-
         end
 
-        %all trials overview (counts for each observed behavior)
+        %% all trials overview (counts for each observed behavior)
 
         ChoiceLeftRight = [ChoiceLeft; 1-ChoiceLeft];
         NotBaited = any((Baited == 0) .* ChoiceLeftRight, 1);
@@ -72,22 +79,26 @@ switch TaskParameters.GUIMeta.RiskType.String{TaskParameters.GUI.RiskType}
         AllSessionEvents = table(counts,'RowNames',events);
 
         if ~isempty(NoChoice)
-            AllSessionEvents('NoChoice','counts')= {length(NoChoice(NoChoice==1))};
+            AllSessionEvents('NoChoice','counts') = {length(NoChoice(NoChoice==1))};
         end
         if ~isempty(BrokeFix)
-            AllSessionEvents('BrokeFix','counts')= {length(BrokeFix(BrokeFix==1))};
+            AllSessionEvents('BrokeFix','counts') = {length(BrokeFix(BrokeFix==1))};
         end
         if ~isempty(EarlyWith)
-            AllSessionEvents('EarlyWith','counts')= {length(EarlyWith(EarlyWith==1))};
+            AllSessionEvents('EarlyWith','counts') = {length(EarlyWith(EarlyWith==1))};
         end
         if ~isempty(SkippedFeedback)
-            AllSessionEvents('SkippedFeedback','counts')= {length(SkippedFeedback(SkippedFeedback==1))}; %-length(indxNotBaited(indxNotBaited==1))};
+            AllSessionEvents('SkippedFeedback','counts') = {length(SkippedFeedback(SkippedFeedback==1))}; %-length(indxNotBaited(indxNotBaited==1))};
         end                                                                                              %is skipped feedback now seperate from not-baited?
         if ~isempty(Rewarded)  
-            AllSessionEvents('Rewarded','counts')= {length(Rewarded(Rewarded==1))};
+            AllSessionEvents('Rewarded','counts') = {length(Rewarded(Rewarded==1))};
         end
         if ~isempty(indxNotBaited)
+<<<<<<< HEAD
             AllSessionEvents('NotBaited','counts')= {length(NotBaited(NotBaited==1))};
+=======
+            AllSessionEvents('NotBaited','counts') = {length(indxNotBaited(indxNotBaited==1))};
+>>>>>>> main
         end
     
     
@@ -108,6 +119,7 @@ switch TaskParameters.GUIMeta.RiskType.String{TaskParameters.GUI.RiskType}
         title('All trials');
         ylabel("counts");
 
+<<<<<<< HEAD
 
         % distribution of waiting time of notbaited trials
         
@@ -126,6 +138,8 @@ switch TaskParameters.GUIMeta.RiskType.String{TaskParameters.GUI.RiskType}
 
         end 
 
+=======
+>>>>>>> main
     case 'Cued'
 
         FigHandle = figure('Position',[ 360         187        1056         598],'NumberTitle','off','Name',Animal);

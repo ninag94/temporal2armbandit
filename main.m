@@ -5,7 +5,7 @@
 Directory = uigetdir;
 prefix = input('provide the prefix of the files to select:'); %f.e. 2_NosePoke
 AllSessionFilesList = dir(fullfile(Directory,[prefix,'*mat']));
-prompt2 = "Enter the path of the directory for saving the plots:";   % f.e. '/Users/ninagrimme/Desktop/Matlab/#2_OneArmCued/plots'
+prompt2 = 'Enter the path of the directory for saving the plots:';   % f.e. '/Users/ninagrimme/Desktop/Matlab/#2_OneArmCued/plots'
 path = input(prompt2);
 
 %maybe ask user for a path for storing the results f.e. plots etc.
