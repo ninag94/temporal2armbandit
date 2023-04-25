@@ -162,6 +162,29 @@ switch DataFile.SettingsFile.GUIMeta.RiskType.String{DataFile.SettingsFile.GUI.R
 
         %% calculating the drinking times
 
+        DrinkingTime = [];
+
+        for i = 1:nTrials
+
+            if Rewarded(i) == 1
+
+                DrinkingTime(end+1) = DataFile.RawEvents.Trial{i}.States.Drinking(2) - DataFile.RawEvents.Trial{1,1}.States.Drinking(1);
+
+            end
+
+        end
+
+        if ~all(isnan(DrinkingTime))
+
+            subplot(2,2,4);              % specification of the binning could be added
+            histogram(DrinkingTime,'FaceColor',[.5,.5,.5],'EdgeColor',[1,1,1]);
+            xlabel('drinking times (s)')
+            ylabel('n')
+            title('Distribution of drinking times')
+
+        end
+
+
     case 'Cued'
 
         FigHandle = figure('Position',[ 360         187        1056         598],'NumberTitle','off','Name',Animal);
