@@ -58,7 +58,7 @@ switch DataFile.SettingsFile.GUIMeta.RiskType.String{DataFile.SettingsFile.GUI.R
         
         %% Block switching behaviour across trial
         subplot(2,2,1) %needs adjustment! depends on the number of plots in the end
-        if ~isempty(ChoiceLeft)
+        if ~isempty(ChoiceLeft) && ~all(isnan(ChoiceLeft))
             xdata = 1:nTrials;
             plot(xdata, RewardProbLeft, '-k', 'Color', [.5,.5,.5], 'LineWidth', 2);
             hold on;
@@ -81,22 +81,22 @@ switch DataFile.SettingsFile.GUIMeta.RiskType.String{DataFile.SettingsFile.GUI.R
         events = {'NoChoice', 'BrokeFix','EarlyWith','SkippedFeedback','Rewarded','NotBaited'};
         AllSessionEvents = table(counts,'RowNames',events);
 
-        if ~isempty(NoChoice)
+        if ~isempty(NoChoice) && ~all(isnan(NoChoice))
             AllSessionEvents('NoChoice','counts') = {length(NoChoice(NoChoice==1))};
         end
-        if ~isempty(BrokeFix)
+        if ~isempty(BrokeFix) && ~all(isnan(BrokeFix))
             AllSessionEvents('BrokeFix','counts') = {length(BrokeFix(BrokeFix==1))};
         end
-        if ~isempty(EarlyWith)
+        if ~isempty(EarlyWith) && ~all(isnan(EarlyWith))
             AllSessionEvents('EarlyWith','counts') = {length(EarlyWith(EarlyWith==1))};
         end
-        if ~isempty(SkippedFeedback)
+        if ~isempty(SkippedFeedback) && all(isnan(SkippedFeedback))
             AllSessionEvents('SkippedFeedback','counts') = {length(SkippedFeedback(SkippedFeedback==1))}; %-length(indxNotBaited(indxNotBaited==1))};
         end                                                                                              %is skipped feedback now seperate from not-baited?
-        if ~isempty(Rewarded)  
+        if ~isempty(Rewarded) && ~all(isnan(Rewarded))
             AllSessionEvents('Rewarded','counts') = {length(Rewarded(Rewarded==1))};
         end
-        if ~isempty(NotBaited)
+        if ~isempty(NotBaited) && ~all(isnan(NotBaited))
 
             AllSessionEvents('NotBaited','counts')= {length(NotBaited(NotBaited==1))};
 
@@ -124,7 +124,7 @@ switch DataFile.SettingsFile.GUIMeta.RiskType.String{DataFile.SettingsFile.GUI.R
 
         %% distribution of waiting time of notbaited trials
         
-        if ~isempty(FeedbackWaitingTime) || all(isnan(FeedbackWaitingTime))
+        if ~isempty(FeedbackWaitingTime) && ~all(isnan(FeedbackWaitingTime))
             
             RewardProbChosen = RewardProb .* ChoiceLeftRight;
             RewardProbChosen = RewardProbChosen(1,:) + RewardProbChosen(2,:);
