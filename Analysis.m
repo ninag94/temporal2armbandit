@@ -69,6 +69,7 @@ switch DataFile.SettingsFile.GUIMeta.RiskType.String{DataFile.SettingsFile.GUI.R
             xlim([0 nTrials]);
             ylabel('Ratio of Left Choices (%)')
             xlabel('Trials')
+            title('Block switching behviour')
         end
 
         %% all trials overview (counts for each observed behavior)
@@ -121,7 +122,7 @@ switch DataFile.SettingsFile.GUIMeta.RiskType.String{DataFile.SettingsFile.GUI.R
 
 
 
-        % distribution of waiting time of notbaited trials
+        %% distribution of waiting time of notbaited trials
         
         if ~isempty(FeedbackWaitingTime) || all(isnan(FeedbackWaitingTime))
             
@@ -154,11 +155,12 @@ switch DataFile.SettingsFile.GUIMeta.RiskType.String{DataFile.SettingsFile.GUI.R
             text2 = sprintf('n = %d',nHigh);
             text(PLow,max(FeedbackWaitingTime),text1);
             text(PHigh,max(FeedbackWaitingTime),text2);
+            title('Waiting times for not-baited trials')
             
 
+        end
 
-
-        end 
+        %% calculating the drinking times
 
     case 'Cued'
 
