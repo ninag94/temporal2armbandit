@@ -62,7 +62,7 @@ switch SessionData.SettingsFile.GUIMeta.RiskType.String{SessionData.SettingsFile
         
         %% Block switching behaviour across trial
         subplot(2,2,1) %needs adjustment! depends on the number of plots in the end
-        if ~isempty(ChoiceLeft)
+        if ~isempty(ChoiceLeft) && ~all(isnan(ChoiceLeft))
             xdata = 1:nTrials;
             plot(xdata, RewardProbLeft, '-k', 'Color', [.5,.5,.5], 'LineWidth', 2);
             hold on;
@@ -73,6 +73,7 @@ switch SessionData.SettingsFile.GUIMeta.RiskType.String{SessionData.SettingsFile
             xlim([0 nTrials]);
             ylabel('Ratio of Left Choices (%)')
             xlabel('Trials')
+            title('Block switching behviour')
         end
 
         %% all trials overview (counts for each observed behavior)
@@ -84,22 +85,22 @@ switch SessionData.SettingsFile.GUIMeta.RiskType.String{SessionData.SettingsFile
         events = {'NoChoice', 'BrokeFix','EarlyWith','SkippedFeedback','Rewarded','NotBaited'};
         AllSessionEvents = table(counts,'RowNames',events);
 
-        if ~isempty(NoChoice)
+        if ~isempty(NoChoice) && ~all(isnan(NoChoice))
             AllSessionEvents('NoChoice','counts') = {length(NoChoice(NoChoice==1))};
         end
-        if ~isempty(BrokeFix)
+        if ~isempty(BrokeFix) && ~all(isnan(BrokeFix))
             AllSessionEvents('BrokeFix','counts') = {length(BrokeFix(BrokeFix==1))};
         end
-        if ~isempty(EarlyWith)
+        if ~isempty(EarlyWith) && ~all(isnan(EarlyWith))
             AllSessionEvents('EarlyWith','counts') = {length(EarlyWith(EarlyWith==1))};
         end
-        if ~isempty(SkippedFeedback)
+        if ~isempty(SkippedFeedback) && all(isnan(SkippedFeedback))
             AllSessionEvents('SkippedFeedback','counts') = {length(SkippedFeedback(SkippedFeedback==1))}; %-length(indxNotBaited(indxNotBaited==1))};
         end                                                                                              %is skipped feedback now seperate from not-baited?
-        if ~isempty(Rewarded)  
+        if ~isempty(Rewarded) && ~all(isnan(Rewarded))
             AllSessionEvents('Rewarded','counts') = {length(Rewarded(Rewarded==1))};
         end
-        if ~isempty(NotBaited)
+        if ~isempty(NotBaited) && ~all(isnan(NotBaited))
 
             AllSessionEvents('NotBaited','counts')= {length(NotBaited(NotBaited==1))};
 
@@ -125,9 +126,9 @@ switch SessionData.SettingsFile.GUIMeta.RiskType.String{SessionData.SettingsFile
 
 
 
-        % distribution of waiting time of notbaited trials
+        %% distribution of waiting time of notbaited trials
         
-        if ~isempty(FeedbackWaitingTime) || all(isnan(FeedbackWaitingTime))
+        if ~isempty(FeedbackWaitingTime) && ~all(isnan(FeedbackWaitingTime))
             
             RewardProbChosen = RewardProb .* ChoiceLeftRight;
             RewardProbChosen = RewardProbChosen(1,:) + RewardProbChosen(2,:);
@@ -158,11 +159,35 @@ switch SessionData.SettingsFile.GUIMeta.RiskType.String{SessionData.SettingsFile
             text2 = sprintf('n = %d',nHigh);
             text(PLow,max(FeedbackWaitingTime),text1);
             text(PHigh,max(FeedbackWaitingTime),text2);
+            title('Waiting times for not-baited trials')
             
 
+        end
 
+        %% calculating the drinking times
 
-        end 
+        DrinkingTime = [];
+
+        for i = 1:nTrials
+
+            if Rewarded(i) == 1
+
+                DrinkingTime(end+1) = DataFile.RawEvents.Trial{i}.States.Drinking(2) - DataFile.RawEvents.Trial{1,1}.States.Drinking(1);
+
+            end
+
+        end
+
+        if ~all(isnan(DrinkingTime))
+
+            subplot(2,2,4);              % specification of the binning could be added
+            histogram(DrinkingTime,'FaceColor',[.5,.5,.5],'EdgeColor',[1,1,1]);
+            xlabel('drinking times (s)')
+            ylabel('n')
+            title('Distribution of drinking times')
+
+        end
+
 
     case 'Cued' % currently only designed for 1-arm
         % colour palette (suitable for most colourblind people)
