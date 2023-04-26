@@ -61,7 +61,7 @@ switch SessionData.SettingsFile.GUIMeta.RiskType.String{SessionData.SettingsFile
         RewardProbLeft = RewardProb(1,:);
         
         %% Block switching behaviour across trial
-        subplot(2,2,1) %needs adjustment! depends on the number of plots in the end
+        subplot(3,3,1) %needs adjustment! depends on the number of plots in the end
         if ~isempty(ChoiceLeft) && ~all(isnan(ChoiceLeft))
             xdata = 1:nTrials;
             plot(xdata, RewardProbLeft, '-k', 'Color', [.5,.5,.5], 'LineWidth', 2);
@@ -143,7 +143,7 @@ switch SessionData.SettingsFile.GUIMeta.RiskType.String{SessionData.SettingsFile
             meanHigh = [mean(WTHigh(1));PHigh];
             meanLow = [mean(WTLow(1));PLow];
 
-            subplot(2,2,3);    %needs adjustment!
+            subplot(3,3,3);    %needs adjustment!
 
             scatter(WTLow(2,:),WTLow(1,:),'cyan');
             hold on
@@ -180,12 +180,40 @@ switch SessionData.SettingsFile.GUIMeta.RiskType.String{SessionData.SettingsFile
 
         if ~all(isnan(DrinkingTime))
 
-            subplot(2,2,4);              % specification of the binning could be added
+            subplot(3,3,4);              % specification of the binning could be added
             histogram(DrinkingTime,'FaceColor',[.5,.5,.5],'EdgeColor',[1,1,1]);
             xlabel('drinking times (s)')
             ylabel('n')
             title('Distribution of drinking times')
 
+        end
+
+
+        %% calculating the actual ITI (inter-trial interval)
+
+        ITI = nan(nTrials,1);
+
+        for i = 1:nTrials
+            if i == 1
+
+                ITI(i) = SessionData.TrialStartTimestamp(1) - SessionData.Info.SessionStartTime_MATLAB + SessionData.RawEvents.Trial{i}.States.ITI(2) - SessionData.RawEvents.Trial{i}.States.ITI(1);
+
+            else
+
+                ITI(i) = SessionData.TrialStartTimestamp(i) - SessionData.TrialEndTimestamp(i-1) + SessionData.RawEvents.Trial{i}.States.ITI(2) - SessionData.RawEvents.Trial{i}.States.ITI(1);
+
+            end
+        end
+
+        if ~all(isnan(ITI))
+
+            subplot(3,3,5);
+            histogram(ITI,'FaceColor',[.5,.5,.5],'EdgeColor',[1,1,1]); %binning could be specified
+            xlabel('actual ITI');
+            ylabel('n')
+            txt = sprintf('GUI ITI: %d',SessionData.SettingsFile.GUI.ITI);
+            title('InterTrial intervals');
+            subtitle(txt);
         end
 
 
@@ -346,7 +374,7 @@ switch SessionData.SettingsFile.GUIMeta.RiskType.String{SessionData.SettingsFile
         LightRewardProb = RewardProb .* LightLeftRight;
         RewardProbUsed = LightRewardProb(1,:) + LightRewardProb(2,:);
 
-        if ~isempty(FeedbackWaitingTime)
+        if ~isempty(FeedbackWaitingTime) && ~all(isnan(FeedbackWaitingTime))
 
             %get the waiting time and reward probability for not-baited trials
 
