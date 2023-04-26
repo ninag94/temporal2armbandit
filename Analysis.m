@@ -223,8 +223,8 @@ switch SessionData.SettingsFile.GUIMeta.RiskType.String{SessionData.SettingsFile
         denim = [31, 54, 104]/255; % mainly for unsuccessful trials
         azure = [0, 162, 254]/255; % for rewarded sign
         
-        neon_green = [26, 255, 26]/255; % for not-baited
-        neon_purple = [168, 12, 180]/255; % for skipped
+        neon_green = [26, 255, 26]/255; % for NotBaited
+        neon_purple = [168, 12, 180]/255; % for SkippedBaited
         
         sand = [225, 190 106]/255; % for left-right
         turquoise = [64, 176, 166]/255;
@@ -352,24 +352,39 @@ switch SessionData.SettingsFile.GUIMeta.RiskType.String{SessionData.SettingsFile
             'YTick', 0:9,...
             'YTickLabel', YTickLabel,...
             'FontSize', 12);
-        xlabel(EventOverviewHandle, 'Proportion', 'FontSize', 12);
+        xlabel(EventOverviewHandle, 'Proportion (%)', 'FontSize', 12);
         title('Event per Cue', 'FontSize', 10)
         
-        xdata = 3:9;
         LightLeftRight = [LightLeft; 1-LightLeft];
         TrialRewardProb = max(RewardProb .* LightLeftRight, [], 1); % max is chosen for a later possible design of 2-arm
         TrialRewardProbEvent = table(TrialRewardProb', EarlyWithdrawal', NoDecision', StartNewTrial',...
                                      IncorrectChoice', Rewarded', NotBaited', SkippedBaited',...
                                      'VariableNames',{'TrialRewardProb', 'EarlyWithdrawal', 'NoDecision', 'StartNewTrial',...
                                                       'IncorrectChoice', 'Rewarded', 'NotBaited', 'SkippedBaited'});
-            
-        ydata = (EarlyWithdrawal==1);
-        EventRatioHandle = barh();
+        
+        RewardProbSortedEventMean = table2array(grpstats(fillmissing(TrialRewardProbEvent, 'constant', 0), 'TrialRewardProb'));
+        RewardProbSortedEventCount = RewardProbSortedEventMean;
+        RewardProbSortedEventCount(:, 3:end) = RewardProbSortedEventMean(:, 2) .* RewardProbSortedEventMean(:, 3:end);
+        
+        RewardProbSortedEventProportion = RewardProbSortedEventMean;
+        RewardProbSortedEventProportion(:, 3:end) = 100 * RewardProbSortedEventMean(:, 3:end) ./ sum(RewardProbSortedEventMean(:, 3:end), 1);
+        
+        xdata = 3:9;
+        ydata = RewardProbSortedEventProportion(:, xdata)';
+        EventRatioHandle = barh(EventOverviewHandle, xdata, ydata, 'stacked');
+        FaceColourPalette = [silver; smoke; graphite; black];
+        for i = 1:length(EventRatioHandle)
+            EventRatioHandle(i).FaceColor = FaceColourPalette(i, :);
+        end
+        
+        RewardProbLegend = string(RewardProbSortedEventCount(:, 1))';
+        EventRatioLegendHandle = legend(EventOverviewHandle, RewardProbLegend,...
+                                        'Position', [0.77    0.79    0.20    0.012]);
         
         %waiting time of not-baited trials per reward probability
 
         %get only the actually used reward probabilities
-
+        %{
         LightLeftRight = [LightLeft;1-LightLeft];
         LightRewardProb = RewardProb .* LightLeftRight;
         RewardProbUsed = LightRewardProb(1,:) + LightRewardProb(2,:);
@@ -409,4 +424,5 @@ switch SessionData.SettingsFile.GUIMeta.RiskType.String{SessionData.SettingsFile
             annotation('textbox', [0.77, 0.7, 0.1, 0.1], 'String', "total counts",'Color','black')
 
         end
+        %}
 end
