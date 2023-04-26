@@ -18,22 +18,22 @@ end
 Date = datestr(SessionData.Info.SessionDate, 'yyyymmdd');
 
 nTrials = SessionData.nTrials;
-ChoiceLeft = SessionData.Custom.TrialData.ChoiceLeft;
-Baited = SessionData.Custom.TrialData.Baited;
-IncorrectChoice = SessionData.Custom.TrialData.IncorrectChoice;
-NoDecision = SessionData.Custom.TrialData.NoDecision;
-NoTrialStart = SessionData.Custom.TrialData.NoTrialStart;
-BrokeFixation = SessionData.Custom.TrialData.BrokeFixation;
-EarlyWithdrawal = SessionData.Custom.TrialData.EarlyWithdrawal;
-StartNewTrial = SessionData.Custom.TrialData.StartNewTrial;
-SkippedFeedback = SessionData.Custom.TrialData.SkippedFeedback;
-Rewarded = SessionData.Custom.TrialData.Rewarded;
+ChoiceLeft = SessionData.Custom.TrialData.ChoiceLeft(1:nTrials);
+Baited = SessionData.Custom.TrialData.Baited(1:nTrials);
+IncorrectChoice = SessionData.Custom.TrialData.IncorrectChoice(1:nTrials);
+NoDecision = SessionData.Custom.TrialData.NoDecision(1:nTrials);
+NoTrialStart = SessionData.Custom.TrialData.NoTrialStart(1:nTrials);
+BrokeFixation = SessionData.Custom.TrialData.BrokeFixation(1:nTrials);
+EarlyWithdrawal = SessionData.Custom.TrialData.EarlyWithdrawal(1:nTrials);
+StartNewTrial = SessionData.Custom.TrialData.StartNewTrial(1:nTrials);
+SkippedFeedback = SessionData.Custom.TrialData.SkippedFeedback(1:nTrials);
+Rewarded = SessionData.Custom.TrialData.Rewarded(1:nTrials);
 
-%FeedbackWaitingTime = DataFile.Custom.TrialData.FeedbackWaitingTime;
+%FeedbackWaitingTime = DataFile.Custom.TrialData.FeedbackWaitingTime(1:nTrials);
 FeedbackWaitingTime = rand(684,1)*10'; %delete this
 FeedbackWaitingTime = FeedbackWaitingTime';  %delete this
-RewardProb = SessionData.Custom.TrialData.RewardProb;
-LightLeft = SessionData.Custom.TrialData.LightLeft;
+RewardProb = SessionData.Custom.TrialData.RewardProb(1:nTrials);
+LightLeft = SessionData.Custom.TrialData.LightLeft(1:nTrials);
 
 ChoiceLeftRight = [ChoiceLeft; 1-ChoiceLeft]; 
 %% Plot based on task design/ risk type
@@ -331,7 +331,7 @@ switch SessionData.SettingsFile.GUIMeta.RiskType.String{SessionData.SettingsFile
                             'Marker', '.',...
                             'MarkerEdge', neon_purple);
         
-        % count and ratio of events
+        % count and ratio of events per cue
         EventOverviewHandle = axes(FigHandle, 'Position', [0.76    0.77    0.22    0.20]);
         hold(EventOverviewHandle, 'on');
         YTickLabel = {'Count |       %',...
@@ -380,6 +380,8 @@ switch SessionData.SettingsFile.GUIMeta.RiskType.String{SessionData.SettingsFile
         RewardProbLegend = string(RewardProbSortedEventCount(:, 1))';
         EventRatioLegendHandle = legend(EventOverviewHandle, RewardProbLegend,...
                                         'Position', [0.77    0.79    0.20    0.012]);
+        
+	    % sample time per cue
         
         %waiting time of not-baited trials per reward probability
 
