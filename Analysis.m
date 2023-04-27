@@ -30,18 +30,13 @@ StartNewTrial = SessionData.Custom.TrialData.StartNewTrial(1:nTrials);
 SkippedFeedback = SessionData.Custom.TrialData.SkippedFeedback(1:nTrials);
 Rewarded = SessionData.Custom.TrialData.Rewarded(1:nTrials);
 
-<<<<<<< Updated upstream
-%FeedbackWaitingTime = DataFile.Custom.TrialData.FeedbackWaitingTime(1:nTrials);
-FeedbackWaitingTime = rand(nTrials,1)*10'; %delete this
-FeedbackWaitingTime = FeedbackWaitingTime';  %delete this
-=======
 SampleTime = SessionData.Custom.TrialData.SampleTime(1:nTrials);
 MoveTime = SessionData.Custom.TrialData.MoveTime(1:nTrials);
 FeedbackWaitingTime = SessionData.Custom.TrialData.FeedbackWaitingTime(1:nTrials);
 DrinkingTime = SessionData.Custom.TrialData.DrinkingTime(1:nTrials);
 % FeedbackWaitingTime = rand(684,1)*10'; %delete this
 % FeedbackWaitingTime = FeedbackWaitingTime';  %delete this
->>>>>>> Stashed changes
+
 RewardProb = SessionData.Custom.TrialData.RewardProb(:, 1:nTrials);
 LightLeft = SessionData.Custom.TrialData.LightLeft(1:nTrials);
 
