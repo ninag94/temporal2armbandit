@@ -30,7 +30,7 @@ SkippedFeedback = SessionData.Custom.TrialData.SkippedFeedback(1:nTrials);
 Rewarded = SessionData.Custom.TrialData.Rewarded(1:nTrials);
 
 %FeedbackWaitingTime = DataFile.Custom.TrialData.FeedbackWaitingTime(1:nTrials);
-FeedbackWaitingTime = rand(684,1)*10'; %delete this
+FeedbackWaitingTime = rand(nTrials,1)*10'; %delete this
 FeedbackWaitingTime = FeedbackWaitingTime';  %delete this
 RewardProb = SessionData.Custom.TrialData.RewardProb(:, 1:nTrials);
 LightLeft = SessionData.Custom.TrialData.LightLeft(1:nTrials);
@@ -85,14 +85,14 @@ switch SessionData.SettingsFile.GUIMeta.RiskType.String{SessionData.SettingsFile
         events = {'NoChoice', 'BrokeFix','EarlyWith','SkippedFeedback','Rewarded','NotBaited'};
         AllSessionEvents = table(counts,'RowNames',events);
 
-        if ~isempty(NoChoice) && ~all(isnan(NoChoice))
-            AllSessionEvents('NoChoice','counts') = {length(NoChoice(NoChoice==1))};
+        if ~isempty(NoDecision) && ~all(isnan(NoDecision))
+            AllSessionEvents('NoChoice','counts') = {length(NoDecision(NoDecision==1))};
         end
-        if ~isempty(BrokeFix) && ~all(isnan(BrokeFix))
-            AllSessionEvents('BrokeFix','counts') = {length(BrokeFix(BrokeFix==1))};
+        if ~isempty(BrokeFixation) && ~all(isnan(BrokeFixation))
+            AllSessionEvents('BrokeFix','counts') = {length(BrokeFixation(BrokeFixation==1))};
         end
-        if ~isempty(EarlyWith) && ~all(isnan(EarlyWith))
-            AllSessionEvents('EarlyWith','counts') = {length(EarlyWith(EarlyWith==1))};
+        if ~isempty(EarlyWithdrawal) && ~all(isnan(EarlyWithdrawal))
+            AllSessionEvents('EarlyWith','counts') = {length(EarlyWithdrawal(EarlyWithdrawal==1))};
         end
         if ~isempty(SkippedFeedback) && all(isnan(SkippedFeedback))
             AllSessionEvents('SkippedFeedback','counts') = {length(SkippedFeedback(SkippedFeedback==1))}; %-length(indxNotBaited(indxNotBaited==1))};
@@ -111,7 +111,7 @@ switch SessionData.SettingsFile.GUIMeta.RiskType.String{SessionData.SettingsFile
         xlabels = {'No Choice','Broke Fix','Early With','Skipped Feedback','Rewarded','NotBaited'};
         colors = {'yellow', "#77AC30",'blue',"#EDB120",'black','cyan'};  
 
-        subplot(2,2,2)   %needs adjustment, depends on the number of subplots
+        subplot(3,3,2)   %needs adjustment, depends on the number of subplots
         hold on
 
         for i = 1:length(y)
@@ -166,13 +166,13 @@ switch SessionData.SettingsFile.GUIMeta.RiskType.String{SessionData.SettingsFile
 
         %% calculating the drinking times
 
-        DrinkingTime = [];
+        DrinkingTime = nan(nTrials,1);
 
         for i = 1:nTrials
 
-            if Rewarded(i) == 1
+            if Rewarded(i) == 1 && ~isnan(SessionData.RawEvents.Trial{i}.States.Drinking(2)) && ~isnan(SessionData.RawEvents.Trial{i}.States.Drinking(1)) 
 
-                DrinkingTime(end+1) = DataFile.RawEvents.Trial{i}.States.Drinking(2) - DataFile.RawEvents.Trial{1,1}.States.Drinking(1);
+                DrinkingTime(i) = SessionData.RawEvents.Trial{i}.States.Drinking(2) - SessionData.RawEvents.Trial{1,1}.States.Drinking(1);
 
             end
 
@@ -204,11 +204,13 @@ switch SessionData.SettingsFile.GUIMeta.RiskType.String{SessionData.SettingsFile
 
             end
         end
+        ITI = ITI';
+        cc=linspace(min(ITI),max(ITI),2);    % not working yet
 
         if ~all(isnan(ITI))
-
-            subplot(3,3,5);
-            histogram(ITI,'FaceColor',[.5,.5,.5],'EdgeColor',[1,1,1]); %binning could be specified
+            figure
+            %subplot(3,3,5);
+            histogram(ITI',cc,'FaceColor',[.5,.5,.5],'EdgeColor',[1,1,1]); %binning could be specified
             xlabel('actual ITI');
             ylabel('n')
             txt = sprintf('GUI ITI: %d',SessionData.SettingsFile.GUI.ITI);
@@ -216,6 +218,57 @@ switch SessionData.SettingsFile.GUIMeta.RiskType.String{SessionData.SettingsFile
             subtitle(txt);
         end
 
+        %% Lau Glimcher-model
+        try 
+            %preparing the data for design matrix
+            Choices = ChoiceLeft';
+            Choices(Choices==0) = -1;     %1 = left; -1 = right
+            Rewards = Rewarded';
+            Rewards = Rewards.*Choices; % reward per choice +/-1   % 1 = left and rewarded; -1 = right and rewarded
+
+            % build trial history kernels (n=5)
+            Choices = repmat(Choices,1,5);                    %creates a matrix with each row representing the data from one trial
+            Rewards = repmat(Rewards,1,5);                    % each column is one variable associated with the explanatory varible (Choices, Rewards)
+            for j = 1:size(Choices,2)                         % in this case being the last 5 trials
+                Choices(:,j) = circshift(Choices(:,j),j);       
+                Choices(1:j,j) = 0;                       
+                Rewards(:,j) = circshift(Rewards(:,j),j);      
+                Rewards(1:j,j) = 0;                       
+            end
+
+            % concatenate to build design matrix X
+            X = [Choices, Rewards];
+            X(isnan(X)) = 0;
+
+            mdl = fitglm(X,ChoiceLeft','distribution','binomial');
+
+            % predict choices
+            Ppredict = mdl.predict(X);
+            logodds = log(Ppredict) - log(1 - Ppredict);
+
+            % odds based on reward or choice only
+            C0=zeros(size(Choices));
+            R0=zeros(size(Rewards));
+            X = [Choices,R0];
+            Ppredict=mdl.predict(X);
+            logoddsChoice = log(Ppredict) - log(1 - Ppredict);
+
+            X = [C0,Rewards];
+            Ppredict=mdl.predict(X);
+            logoddsReward = log(Ppredict) - log(1 - Ppredict);
+
+        catch
+
+            dis('error in running model');
+            model = false;
+
+        end
+        
+        %if model ~= false
+
+            %subplot(3,3,6)
+
+       % end
 
     case 'Cued' % currently only designed for 1-arm
         % colour palette (suitable for most colourblind people)
