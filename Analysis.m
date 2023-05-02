@@ -75,7 +75,7 @@ switch SessionData.SettingsFile.GUIMeta.RiskType.String{SessionData.SettingsFile
             xlim([0 nTrials]);
             ylabel('Ratio of Left Choices (%)')
             xlabel('Trials')
-            title('Block switching behviour')
+            title('Block switching behaviour')
         end
 
         %% all trials overview (counts for each observed behavior)
@@ -206,14 +206,15 @@ switch SessionData.SettingsFile.GUIMeta.RiskType.String{SessionData.SettingsFile
         cc=linspace(min(ITI),max(ITI),2);    % not working yet
 
         if ~all(isnan(ITI))
-            figure
-            %subplot(3,3,5);
+
+            subplot(3,3,5);
             histogram(ITI',cc,'FaceColor',[.5,.5,.5],'EdgeColor',[1,1,1]); %binning could be specified
             xlabel('actual ITI');
             ylabel('n')
             txt = sprintf('GUI ITI: %d',SessionData.SettingsFile.GUI.ITI);
             title('InterTrial intervals');
             subtitle(txt);
+            
         end
 
         %% Lau Glimcher-model
@@ -254,6 +255,7 @@ switch SessionData.SettingsFile.GUIMeta.RiskType.String{SessionData.SettingsFile
             X = [C0,Rewards];
             Ppredict=mdl.predict(X);
             logoddsReward = log(Ppredict) - log(1 - Ppredict);
+            model = true;
 
         catch
 
@@ -262,11 +264,29 @@ switch SessionData.SettingsFile.GUIMeta.RiskType.String{SessionData.SettingsFile
 
         end
         
-        %if model ~= false
+        if model ~= false
+            
+            subplot(3,3,6)
+            hold on
+            
+            xdata = 1:5;
+            ydataChoice = mdl.Coefficients.Estimate(2:6);
+            ydataReward = mdl.Coefficients.Estimate(7:11);
+            intercept = mdl.Coefficients.Estimate(1);
 
-            %subplot(3,3,6)
+            plot(xdata,ydataChoice,'Color','blue')
+            plot(xdata,ydataReward,'Color','magenta')
+            scatter(1,intercept,'filled','MarkerFaceColor','k')
+            plot(xdata,intercept.*ones(1,length(xdata)),'--k');
+            xticks(xdata);
+            xlabel('n trials back');
+            ylabel('correlation coefficients');
+            title('GLM Fit')
+            legend('choice','reward','intercept');
 
-       % end
+
+
+        end
 
     case 'Cued' % currently only designed for 1-arm
         % colour palette for events (suitable for most colourblind people)
