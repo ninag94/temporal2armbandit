@@ -36,7 +36,7 @@ FeedbackWaitingTime = SessionData.Custom.TrialData.FeedbackWaitingTime(1:nTrials
 DrinkingTime = SessionData.Custom.TrialData.DrinkingTime(1:nTrials);
 FeedbackDelay = SessionData.Custom.TrialData.FeedbackDelay(1:nTrials);
 %FeedbackWaitingTime = rand(nTrials,1)*10; %delete this
-% FeedbackWaitingTime = FeedbackWaitingTime';  %delete this
+%FeedbackWaitingTime = FeedbackWaitingTime';  %delete this
 %FeedbackDelay = rand(nTrials,1)*10; %delete this
 %FeedbackDelay= FeedbackDelay'; 
 
@@ -145,8 +145,7 @@ switch SessionData.SettingsFile.GUIMeta.RiskType.String{SessionData.SettingsFile
             meanHigh = [mean(WTHigh(1));PHigh];
             meanLow = [mean(WTLow(1));PLow];
 
-           % subplot(3,3,3);    %needs adjustment!
-            figure
+            subplot(3,3,3);    %needs adjustment!
             swarmchart(WTLow(2,:),WTLow(1,:),'cyan');
             hold on
             swarmchart(WTHigh(2,:),WTHigh(1,:),'blue');
