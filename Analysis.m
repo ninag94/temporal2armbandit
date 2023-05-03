@@ -146,18 +146,14 @@ switch SessionData.SettingsFile.GUIMeta.RiskType.String{SessionData.SettingsFile
             meanLow = [mean(WTLow(1));PLow];
 
             subplot(3,3,3);    %needs adjustment!
-            swarmchart(WTLow(2,:),WTLow(1,:),'cyan');
             hold on
+            xlim([0 1]);
+            swarmchart(WTLow(2,:),WTLow(1,:),'cyan');
             swarmchart(WTHigh(2,:),WTHigh(1,:),'blue');
-            %plot(meanHigh(2,:),meanHigh(1,:),'x','MarkerSize',10,'MarkerEdgeColor','black','LineWidth',2);
-            %plot(meanLow(2,:),meanHigh(2,:),'x','MarkerSize',10,'MarkerEdgeColor','black','LineWidth',2);
-            %xlim([0 1]);
-            %ticks = [PLow,PHigh];
-            %xticks(ticks);
-            %xticklabels({'PLow','PHigh'});
-            boxplot(WTLow(1,:),WTLow(2,:));
-            boxplot(WTHigh(1,:),WTHigh(2,:));
-            %set(gca, 'XTick', ticks)
+            ticks = [PLow PHigh];
+            boxplot(WTLow(1,:),'Positions',PLow);
+            boxplot(WTHigh(1,:),'Positions',PHigh);
+            xticks(ticks)
             set(gca, 'XTickLabel', {'PLow', 'PHigh'})
             ylabel('time investment (s)');
             text1 = sprintf('n = %d',nLow);
