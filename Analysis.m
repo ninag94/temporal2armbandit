@@ -34,8 +34,11 @@ SampleTime = SessionData.Custom.TrialData.SampleTime(1:nTrials);
 MoveTime = SessionData.Custom.TrialData.MoveTime(1:nTrials);
 FeedbackWaitingTime = SessionData.Custom.TrialData.FeedbackWaitingTime(1:nTrials);
 DrinkingTime = SessionData.Custom.TrialData.DrinkingTime(1:nTrials);
-% FeedbackWaitingTime = rand(684,1)*10'; %delete this
+FeedbackDelay = SessionData.Custom.TrialData.FeedbackDelay(1:nTrials);
+%FeedbackWaitingTime = rand(nTrials,1)*10; %delete this
 % FeedbackWaitingTime = FeedbackWaitingTime';  %delete this
+%FeedbackDelay = rand(nTrials,1)*10; %delete this
+%FeedbackDelay= FeedbackDelay'; 
 
 RewardProb = SessionData.Custom.TrialData.RewardProb(:, 1:nTrials);
 LightLeft = SessionData.Custom.TrialData.LightLeft(1:nTrials);
@@ -142,17 +145,21 @@ switch SessionData.SettingsFile.GUIMeta.RiskType.String{SessionData.SettingsFile
             meanHigh = [mean(WTHigh(1));PHigh];
             meanLow = [mean(WTLow(1));PLow];
 
-            subplot(3,3,3);    %needs adjustment!
-
-            scatter(WTLow(2,:),WTLow(1,:),'cyan');
+           % subplot(3,3,3);    %needs adjustment!
+            figure
+            swarmchart(WTLow(2,:),WTLow(1,:),'cyan');
             hold on
-            scatter(WTHigh(2,:),WTHigh(1,:),'blue');
-            plot(meanHigh(2,:),meanHigh(1,:),'x','MarkerSize',10,'MarkerEdgeColor','black','LineWidth',2);
-            plot(meanLow(2,:),meanHigh(2,:),'x','MarkerSize',10,'MarkerEdgeColor','black','LineWidth',2);
-            xlim([0 1]);
-            ticks = [PLow,PHigh];
-            xticks(ticks);
-            xticklabels({'PLow','PHigh'});
+            swarmchart(WTHigh(2,:),WTHigh(1,:),'blue');
+            %plot(meanHigh(2,:),meanHigh(1,:),'x','MarkerSize',10,'MarkerEdgeColor','black','LineWidth',2);
+            %plot(meanLow(2,:),meanHigh(2,:),'x','MarkerSize',10,'MarkerEdgeColor','black','LineWidth',2);
+            %xlim([0 1]);
+            %ticks = [PLow,PHigh];
+            %xticks(ticks);
+            %xticklabels({'PLow','PHigh'});
+            boxplot(WTLow(1,:),WTLow(2,:));
+            boxplot(WTHigh(1,:),WTHigh(2,:));
+            %set(gca, 'XTick', ticks)
+            set(gca, 'XTickLabel', {'PLow', 'PHigh'})
             ylabel('time investment (s)');
             text1 = sprintf('n = %d',nLow);
             text2 = sprintf('n = %d',nHigh);
@@ -280,13 +287,15 @@ switch SessionData.SettingsFile.GUIMeta.RiskType.String{SessionData.SettingsFile
         end
 
         %psychometric
+        %ConditionColors = [0,0,0;1,0,0;1,.6,.6];
+
         %subplot(3,3,7)
         %hold on
 
-        %ChoiceLeft=~isnan(ChoiceLeft); ChoiceLeft = ChoiceLeft(:);
-        %DV = logodds(ChoiceLeft);
+        %ChoiceL=~isnan(ChoiceLeft); ChoiceL = ChoiceLeft(:);
+        %DV = logodds(ChoiceL);
         %dvbin=linspace(-max(abs(DV)),max(abs(DV)),10);
-        %[x,y,e]=bindata(DV,ChoiceLeft,dvbin);
+        %[x,y,e]=BinData(DV,ChoiceLeft,dvbin);
         %vv=~isnan(x) & ~isnan(y) & ~isnan(e);
         %errorbar(x(vv),y(vv),e(vv),'Color',ConditionColors(c,:),'LineStyle','none','LineWidth',2,'Marker','o','MarkerFaceColor',ConditionColors(c,:))
 
@@ -298,31 +307,63 @@ switch SessionData.SettingsFile.GUIMeta.RiskType.String{SessionData.SettingsFile
         %plot(xx,predict(mdl,xx'),'-k')
 
 
-        %callibration plot
+        %% callibration plot
 
-        %subplot(3,3,8)
-        %hold on
-        %ndxValid = ~isnan(ChoiceLeft); %&BpodSystem.Data.Custom.EarlyCout==0;
-        %ndxValid = ndxValid(:);
+        subplot(3,3,8)
+        hold on
+        ndxValid = ~isnan(ChoiceLeft) & EarlyWithdrawal==0;
+        ndxValid = ndxValid(:);
     
-        %ndxExploit = ChoiceLeft(:) == (logodds>0);
-        %ndxBaited = (Baited(1,:) & ChoiceLeft==1) | (Baited(2,:) & ChoiceLeft==0);
-        %ndxBaited = ndxBaited(:);
-        %left = ChoiceLeft(ndxValid & ~ndxBaited)==1; %?
-        %corr = ndxExploit(ndxValid & ~ndxBaited); %'correct'
-        %ti = SessionData.Custom.TrialData.FeedbackDelay(ndxValid & ~ndxBaited); ti = ti(:);
-        %edges = linspace(min(ti),max(ti),8);
-        %[x,y,e]=bindata(ti,corr,edges);
-        %vv=~isnan(x) & ~isnan(y) & ~isnan(e);
-        %errorbar(x(vv),y(vv),e(vv),'Color',ConditionColors(c,:),'LineWidth',2)
+        ndxExploit = ChoiceLeft(:) == (logodds>0);
+        ndxBaited = (Baited(1,:) & ChoiceLeft==1) | (Baited(2,:) & ChoiceLeft==0);
+        ndxBaited = ndxBaited(:);
+        left = ChoiceLeft(ndxValid & ~ndxBaited)==1; %?
+        corr = ndxExploit(ndxValid & ~ndxBaited); %'correct'
+        FeedbackDel = FeedbackDelay(:);
+        ti = FeedbackDel(ndxValid & ~ndxBaited); ti = ti(:);
+        edges = linspace(min(ti),max(ti),8);
+        [x,y,e]=BinData(ti,corr,edges);
+        vv=~isnan(x) & ~isnan(y) & ~isnan(e);
+        errorbar(x(vv),y(vv),e(vv))
+        xlabel('Time investment (s)')
+        ylabel('Percent exploit')
 
-      
+      %plot vevaiometric    
+        subplot(3,3,9)
+        hold on
+
+        ndxBaited = (Baited(1,:) & ChoiceLeft==1) | (Baited(2,:) & ChoiceLeft==0);
+        ndxBaited = ndxBaited(:);
+        ndxValid =  ~isnan(ChoiceLeft) & EarlyWithdrawal==0;
+        ndxValid = ndxValid(:);
+        ndxExploit = ChoiceLeft(:) == (logodds>0);
+        ExploreScatter_XData = logodds(ndxValid & ~ndxBaited & ~ndxExploit);
+        FeedbackDel = FeedbackDelay(:);
+        ExploreScatter_YData = FeedbackDel(ndxValid & ~ndxBaited & ~ndxExploit)';
+        ExploitScatter_XData = logodds(ndxValid & ~ndxBaited & ndxExploit);
+        ExploitScatter_YData = FeedbackDel(ndxValid & ~ndxBaited & ndxExploit)';
+        [ExploreLine_XData, ExploreLine_YData] = Binvevaio(ExploreScatter_XData,ExploreScatter_YData,10);
+        [ExploitLine_XData, ExploitLine_YData] = Binvevaio(ExploitScatter_XData,ExploitScatter_YData,10);
+
+        scatter(ExploitScatter_XData, ExploitScatter_YData,'.g','MarkerFaceColor','g');
+        scatter(ExploreScatter_XData, ExploreScatter_YData,'.r','MarkerFaceColor','r');
+        h1=plot(ExploreLine_XData, ExploreLine_YData, 'r','LineWidth',3);
+        h2=plot(ExploitLine_XData, ExploitLine_YData,'g','LineWidth',3);
+        l=legend([h1,h2],{'Explore','Exploit'});
+        l.Box='off';
+        l.Location='northwest';
+        try
+        ylim([min([ExploitScatter_YData;ExploreScatter_YData]),max([ExploitScatter_YData;ExploreScatter_YData])])
+        xlim([-max(abs([ExploitScatter_XData;ExploreScatter_XData])),max(abs([ExploitScatter_XData;ExploreScatter_XData]))])
+        catch
+        end
+
 
 
 
     case 'Cued' % currently only designed for 1-arm
         % colour palette for events (suitable for most colourblind people)
-        scarlet = [254, 60, 60]/255; % for incorrect sign, contracting with azure
+            scarlet = [254, 60, 60]/255; % for incorrect sign, contracting with azure
         denim = [31, 54, 104]/255; % mainly for unsuccessful trials
         azure = [0, 162, 254]/255; % for rewarded sign
         
@@ -810,4 +851,9 @@ switch SessionData.SettingsFile.GUIMeta.RiskType.String{SessionData.SettingsFile
 
         end
         %}
+ 
 end
+
+
+
+
