@@ -279,23 +279,24 @@ switch SessionData.SettingsFile.GUIMeta.RiskType.String{SessionData.SettingsFile
 
         end
 
-        %psychometric
+        %% psychometric
         %ConditionColors = [0,0,0;1,0,0;1,.6,.6];
 
-        %subplot(3,3,7)
-        %hold on
+        subplot(3,3,7)
+        hold on
 
-        %ChoiceL=~isnan(ChoiceLeft); ChoiceL = ChoiceLeft(:);
-        %DV = logodds(ChoiceL);
-        %dvbin=linspace(-max(abs(DV)),max(abs(DV)),10);
-        %[x,y,e]=BinData(DV,ChoiceLeft,dvbin);
-        %vv=~isnan(x) & ~isnan(y) & ~isnan(e);
-        %errorbar(x(vv),y(vv),e(vv),'Color',ConditionColors(c,:),'LineStyle','none','LineWidth',2,'Marker','o','MarkerFaceColor',ConditionColors(c,:))
+        ndxvalid=~isnan(ChoiceLeft); ndxvalid = ndxvalid(:);
+        DV = logodds(ndxvalid);
+        ChoiceL = ChoiceLeft(ndxvalid);
+        dvbin=linspace(-max(abs(DV)),max(abs(DV)),10);
+        [x,y,e]=BinData(DV,ChoiceL,dvbin);
+        vv=~isnan(x) & ~isnan(y) & ~isnan(e);
+        errorbar(x(vv),y(vv),e(vv))%,'Color',ConditionColors(c,:),'LineStyle','none','LineWidth',2,'Marker','o','MarkerFaceColor',ConditionColors(c,:))
 
-        %xlabel('log odds')
-        %ylabel('P(Left)')
+        xlabel('log odds')
+        ylabel('P(Left)')
         %fit
-        %mdl = fitglm(DV,ChoiceLeft(:),'Distribution','binomial');
+        %mdl = fitglm(DV,ChoiceL(:),'Distribution','binomial');
         %xx=linspace(dvbin(1),dvbin(end),100);
         %plot(xx,predict(mdl,xx'),'-k')
 
