@@ -201,7 +201,7 @@ switch SessionData.SettingsFile.GUIMeta.RiskType.String{SessionData.SettingsFile
 
             subplot(3,3,5);
             xlim([min(ITI) max(ITI)])
-            histogram(ITI,cc)%,'FaceColor',[.5,.5,.5],'EdgeColor',[1,1,1]); %binning could be specified
+            histogram(ITI,cc,'FaceColor',[.5,.5,.5],'EdgeColor',[1,1,1]); %binning could be specified
             xlabel('actual ITI');
             ylabel('n')
             txt = sprintf('GUI ITI: %d',SessionData.SettingsFile.GUI.ITI);
