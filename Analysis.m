@@ -187,27 +187,23 @@ switch SessionData.SettingsFile.GUIMeta.RiskType.String{SessionData.SettingsFile
 
         ITI = nan(nTrials-1,1);
 
-        for i = 1:nTrials
-            if i == 1
+        for i = 2:nTrials
 
-                ITI(i) = SessionData.TrialStartTimestamp(1) - SessionData.Info.SessionStartTime_MATLAB + SessionData.RawEvents.Trial{i}.States.ITI(2) - SessionData.RawEvents.Trial{i}.States.ITI(1);
+            ITI(i) = SessionData.TrialStartTimestamp(i) - SessionData.TrialEndTimestamp(i-1) + SessionData.RawEvents.Trial{i}.States.ITI(2) - SessionData.RawEvents.Trial{i}.States.ITI(1);
 
-            else
-
-                ITI(i) = SessionData.TrialStartTimestamp(i) - SessionData.TrialEndTimestamp(i-1) + SessionData.RawEvents.Trial{i}.States.ITI(2) - SessionData.RawEvents.Trial{i}.States.ITI(1);
-
-            end
+           
         end
-        ITI = ITI';
-        cc=linspace(min(ITI),max(ITI));    % not working yet
+
+        ITI = ITI(2:nTrials)';
+        cc=linspace(min(ITI),max(ITI),10);    % not working yet
 
         if ~all(isnan(ITI))
 
             subplot(3,3,5);
+            xlim([min(ITI) max(ITI)])
             histogram(ITI,cc)%,'FaceColor',[.5,.5,.5],'EdgeColor',[1,1,1]); %binning could be specified
             xlabel('actual ITI');
             ylabel('n')
-            xlim([min(cc) max(cc)]);
             txt = sprintf('GUI ITI: %d',SessionData.SettingsFile.GUI.ITI);
             title('InterTrial intervals');
             subtitle(txt);
