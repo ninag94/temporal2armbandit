@@ -162,19 +162,9 @@ switch SessionData.SettingsFile.GUIMeta.RiskType.String{SessionData.SettingsFile
             
         end
 
-        %% calculating the drinking times
+        %% plotting the drinking times
 
-        DrinkingTime = nan(nTrials,1);
-
-        for i = 1:nTrials
-
-            if Rewarded(i) == 1 && ~isnan(SessionData.RawEvents.Trial{i}.States.Drinking(2)) && ~isnan(SessionData.RawEvents.Trial{i}.States.Drinking(1)) 
-
-                DrinkingTime(i) = SessionData.RawEvents.Trial{i}.States.Drinking(2) - SessionData.RawEvents.Trial{1,1}.States.Drinking(1);
-
-            end
-
-        end
+         DrinkingTime = DrinkingTime(~isnan(DrinkingTime));
 
         if ~all(isnan(DrinkingTime))
 
@@ -189,7 +179,7 @@ switch SessionData.SettingsFile.GUIMeta.RiskType.String{SessionData.SettingsFile
 
         %% calculating the actual ITI (inter-trial interval)
 
-        ITI = nan(nTrials,1);
+        ITI = nan(nTrials-1,1);
 
         for i = 1:nTrials
             if i == 1
@@ -203,18 +193,19 @@ switch SessionData.SettingsFile.GUIMeta.RiskType.String{SessionData.SettingsFile
             end
         end
         ITI = ITI';
-        cc=linspace(min(ITI),max(ITI),2);    % not working yet
+        cc=linspace(min(ITI),max(ITI));    % not working yet
 
         if ~all(isnan(ITI))
 
             subplot(3,3,5);
-            histogram(ITI',cc,'FaceColor',[.5,.5,.5],'EdgeColor',[1,1,1]); %binning could be specified
+            histogram(ITI,cc)%,'FaceColor',[.5,.5,.5],'EdgeColor',[1,1,1]); %binning could be specified
             xlabel('actual ITI');
             ylabel('n')
+            xlim([min(cc) max(cc)]);
             txt = sprintf('GUI ITI: %d',SessionData.SettingsFile.GUI.ITI);
             title('InterTrial intervals');
             subtitle(txt);
-            
+
         end
 
         %% Lau Glimcher-model
@@ -243,7 +234,7 @@ switch SessionData.SettingsFile.GUIMeta.RiskType.String{SessionData.SettingsFile
 
             % predict choices
             Ppredict = mdl.predict(X);
-            logodds = log(Ppredict) - log(1 - Ppredict);
+            logodds = log(Ppredict) - log(1 - Ppredict);   %logodds for both: left and right
 
             % odds based on reward or choice only
             C0=zeros(size(Choices));
@@ -259,7 +250,7 @@ switch SessionData.SettingsFile.GUIMeta.RiskType.String{SessionData.SettingsFile
 
         catch
 
-            dis('error in running model');
+            disp('error in running model');
             model = false;
 
         end
@@ -287,6 +278,47 @@ switch SessionData.SettingsFile.GUIMeta.RiskType.String{SessionData.SettingsFile
 
 
         end
+
+        %psychometric
+        %subplot(3,3,7)
+        %hold on
+
+        %ChoiceLeft=~isnan(ChoiceLeft); ChoiceLeft = ChoiceLeft(:);
+        %DV = logodds(ChoiceLeft);
+        %dvbin=linspace(-max(abs(DV)),max(abs(DV)),10);
+        %[x,y,e]=bindata(DV,ChoiceLeft,dvbin);
+        %vv=~isnan(x) & ~isnan(y) & ~isnan(e);
+        %errorbar(x(vv),y(vv),e(vv),'Color',ConditionColors(c,:),'LineStyle','none','LineWidth',2,'Marker','o','MarkerFaceColor',ConditionColors(c,:))
+
+        %xlabel('log odds')
+        %ylabel('P(Left)')
+        %fit
+        %mdl = fitglm(DV,ChoiceLeft(:),'Distribution','binomial');
+        %xx=linspace(dvbin(1),dvbin(end),100);
+        %plot(xx,predict(mdl,xx'),'-k')
+
+
+        %callibration plot
+
+        %subplot(3,3,8)
+        %hold on
+        %ndxValid = ~isnan(ChoiceLeft); %&BpodSystem.Data.Custom.EarlyCout==0;
+        %ndxValid = ndxValid(:);
+    
+        %ndxExploit = ChoiceLeft(:) == (logodds>0);
+        %ndxBaited = (Baited(1,:) & ChoiceLeft==1) | (Baited(2,:) & ChoiceLeft==0);
+        %ndxBaited = ndxBaited(:);
+        %left = ChoiceLeft(ndxValid & ~ndxBaited)==1; %?
+        %corr = ndxExploit(ndxValid & ~ndxBaited); %'correct'
+        %ti = SessionData.Custom.TrialData.FeedbackDelay(ndxValid & ~ndxBaited); ti = ti(:);
+        %edges = linspace(min(ti),max(ti),8);
+        %[x,y,e]=bindata(ti,corr,edges);
+        %vv=~isnan(x) & ~isnan(y) & ~isnan(e);
+        %errorbar(x(vv),y(vv),e(vv),'Color',ConditionColors(c,:),'LineWidth',2)
+
+      
+
+
 
     case 'Cued' % currently only designed for 1-arm
         % colour palette for events (suitable for most colourblind people)
