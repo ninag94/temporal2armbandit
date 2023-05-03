@@ -281,8 +281,6 @@ switch SessionData.SettingsFile.GUIMeta.RiskType.String{SessionData.SettingsFile
             title('GLM Fit')
             legend('choice','reward','intercept');
 
-
-
         end
 
         %psychometric
@@ -326,8 +324,9 @@ switch SessionData.SettingsFile.GUIMeta.RiskType.String{SessionData.SettingsFile
         errorbar(x(vv),y(vv),e(vv))
         xlabel('Time investment (s)')
         ylabel('Percent exploit')
+        title('callibration plot')
 
-      %plot vevaiometric    
+      %% plot vevaiometric    
         subplot(3,3,9)
         hold on
 
@@ -356,6 +355,7 @@ switch SessionData.SettingsFile.GUIMeta.RiskType.String{SessionData.SettingsFile
         xlim([-max(abs([ExploitScatter_XData;ExploreScatter_XData])),max(abs([ExploitScatter_XData;ExploreScatter_XData]))])
         catch
         end
+        title('vevaiometric')
 
 
 
