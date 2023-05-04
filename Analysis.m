@@ -855,7 +855,7 @@ switch SessionData.SettingsFile.GUIMeta.RiskType.String{SessionData.SettingsFile
             'YLim', [0, 0.3],...
             'YAxisLocation', 'right',...
             'FontSize', 10);
-        title('FeedbackDelay Grace Time', 'FontSize', 12)
+        title(sprintf('FeedbackDelay\nGrace Time'), 'FontSize', 12)
         xlabel(LRFeedbackDelayGraceTimeHandle, '')
         ylabel(LRFeedbackDelayGraceTimeHandle, '')
         
@@ -877,55 +877,43 @@ switch SessionData.SettingsFile.GUIMeta.RiskType.String{SessionData.SettingsFile
                                                     'FontSize', 10,...
                                                     'HorizontalAlignment', 'right');
         
+        %% Drinking Time & ITI
+        DrinkingTimeHandle = axes(FigHandle, 'Position', [0.43    0.57    0.09    0.13]);
+        
+        DrinkingTimeScatterHandle = swarmchart(DrinkingTimeHandle, ones(length(DrinkingTime)), DrinkingTime,...
+                                               'Marker', '.',...
+                                               'MarkerEdgeColor', 'k',...
+                                               'XJitter', 'density',...
+                                               'XJitterWidth', 0.8);
+        
+        set(DrinkingTimeHandle,...
+            'TickDir', 'out',...
+            'XLim', [0, 2],...
+            'YLim', [0, 15],...
+            'FontSize', 10);
+        title('Drinking Time', 'FontSize', 12)
+        ylabel(DrinkingTimeHandle, 'Time (s)')
+        
+        %% ITI
+        ITIHandle = axes(FigHandle, 'Position', [0.28    0.57    0.09    0.13]);
+        
+        ITI = SessionData.TrialStartTimestamp(2:end) - SessionData.TrialEndTimestamp(1:end-1);
+        ITIScatterHandle = swarmchart(ITIHandle,...
+                                      ones(length(ITI)), ITI,...
+                                      'Marker', '.',...
+                                      'MarkerEdgeColor', 'k',...
+                                      'XJitter', 'density',...
+                                      'XJitterWidth', 0.8);
+        
+        set(ITIHandle,...
+            'TickDir', 'out',...
+            'XLim', [0, 2],...
+            'YLim', [0, 0.6],...
+            'FontSize', 10);
+        title('ITI', 'FontSize', 12)
+        ylabel(ITIHandle, 'Time (s)')
 
         i;
-        % waiting time of not-baited trials per reward probability
 
-        %get only the actually used reward probabilities
-        %{
-        LightLeftRight = [LightLeft;1-LightLeft];
-        LightRewardProb = RewardProb .* LightLeftRight;
-        RewardProbUsed = LightRewardProb(1,:) + LightRewardProb(2,:);
-
-        if ~isempty(FeedbackWaitingTime) && ~all(isnan(FeedbackWaitingTime))
-
-            %get the waiting time and reward probability for not-baited trials
-
-            indxNotBaited = (IncorrectChoice==0) & any((Baited == 0) .* ChoiceLeftRight, 1); 
-            NotBaitedWT = FeedbackWaitingTime(indxNotBaited==1); 
-            NotBaitedRP = RewardProbUsed(indxNotBaited==1);
-            WaitingTime = NotBaitedWT';
-            RewardProb = NotBaitedRP';
-            NotBaitedWTRP = table(RewardProb,WaitingTime); % does not need to be in this format, can also be an array/matrix
-            WTRPSummary = groupsummary(NotBaitedWTRP,"RewardProb",{"mean","std"}); %then groupstats need to be used instead of groupsummary
-
-            %plot waiting time and reward probability
-
-            subplot(2,2,1)                      %needs adjustment to the final number of plots
-            xdata = WTRPSummary.RewardProb;
-            ydata = WTRPSummary.mean_WaitingTime;
-            swarmchart(NotBaitedWTRP.RewardProb,NotBaitedWTRP.WaitingTime,'cyan','filled')
-            hold on
-            errbar = WTRPSummary.std_WaitingTime;
-            plot(xdata,ydata,'diamond','MarkerSize',8,'MarkerEdgeColor','black','LineWidth',2);
-            title("Not Baited trials")
-            xlabel("reward probability in %");
-            ylabel("time investment in s ");
-            errorbar(xdata,ydata,errbar,'Linestyle','none','Color','k');
-            xdataticks = WTRPSummary.RewardProb';
-            xticks(xdataticks)           
-            xticklabels(string(xdataticks));        %test this?
-            xlim([0 1])
-            counts = string(WTRPSummary.GroupCount);
-            ylabels = ydata + 0.2;   
-            text(xdata,ylabels,counts,'Color','black','FontSize',12)
-            annotation('textbox', [0.77, 0.7, 0.1, 0.1], 'String', "total counts",'Color','black')
-
-        end
-        %}
  
 end
-
-
-
-
