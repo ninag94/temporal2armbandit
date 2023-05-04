@@ -130,7 +130,7 @@ switch SessionData.SettingsFile.GUIMeta.RiskType.String{SessionData.SettingsFile
         end
         if ~isempty(SkippedFeedback) && ~all(isnan(SkippedFeedback))
             AllSessionEvents('SkippedFeedback','counts') = {length(SkippedFeedback(SkippedFeedback==1))-length(NotBaited(NotBaited==1))};
-        end                                                                                              %is skipped feedback now seperate from not-baited?
+        end                                                                                             
         if ~isempty(Rewarded) && ~all(isnan(Rewarded))
             AllSessionEvents('Rewarded','counts') = {length(Rewarded(Rewarded==1))};
         end
@@ -316,14 +316,15 @@ switch SessionData.SettingsFile.GUIMeta.RiskType.String{SessionData.SettingsFile
         dvbin=linspace(-max(abs(DV)),max(abs(DV)),10);
         [x,y,e]=BinData(DV,ChoiceL,dvbin);
         vv=~isnan(x) & ~isnan(y) & ~isnan(e);
-        errorbar(x(vv),y(vv),e(vv))%,'Color',ConditionColors(c,:),'LineStyle','none','LineWidth',2,'Marker','o','MarkerFaceColor',ConditionColors(c,:))
+        errorbar(x(vv),y(vv),e(vv),'LineStyle','none','LineWidth',2,'Marker','o');
 
         xlabel('log odds')
         ylabel('P(Left)')
         %fit
-        %mdl = fitglm(DV,ChoiceL(:),'Distribution','binomial');
-        %xx=linspace(dvbin(1),dvbin(end),100);
-        %plot(xx,predict(mdl,xx'),'-k')
+        mdl = fitglm(DV,ChoiceL(:),'Distribution','binomial');
+        xx=linspace(dvbin(1),dvbin(end),100);
+        plot(xx,predict(mdl,xx'),'-k')
+        title('psychometric')
 
 
         %% callibration plot
