@@ -128,8 +128,8 @@ switch SessionData.SettingsFile.GUIMeta.RiskType.String{SessionData.SettingsFile
         if ~isempty(EarlyWithdrawal) && ~all(isnan(EarlyWithdrawal))
             AllSessionEvents('EarlyWith','counts') = {length(EarlyWithdrawal(EarlyWithdrawal==1))};
         end
-        if ~isempty(SkippedFeedback) && all(isnan(SkippedFeedback))
-            AllSessionEvents('SkippedFeedback','counts') = {length(SkippedFeedback(SkippedFeedback==1))}; %-length(indxNotBaited(indxNotBaited==1))};
+        if ~isempty(SkippedFeedback) && ~all(isnan(SkippedFeedback))
+            AllSessionEvents('SkippedFeedback','counts') = {length(SkippedFeedback(SkippedFeedback==1))-length(NotBaited(NotBaited==1))};
         end                                                                                              %is skipped feedback now seperate from not-baited?
         if ~isempty(Rewarded) && ~all(isnan(Rewarded))
             AllSessionEvents('Rewarded','counts') = {length(Rewarded(Rewarded==1))};
@@ -377,7 +377,9 @@ switch SessionData.SettingsFile.GUIMeta.RiskType.String{SessionData.SettingsFile
         xlim([-max(abs([ExploitScatter_XData;ExploreScatter_XData])),max(abs([ExploitScatter_XData;ExploreScatter_XData]))])
         catch
         end
-        title('vevaiometric')
+        title('vevaiometric');
+        xlabel('logodds');
+        ylabel('time investment (s)');
 
 
 
